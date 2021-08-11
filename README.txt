@@ -1,5 +1,4 @@
-CMPT 361 Assignment 3 - Jacqueline Greer St. ID 301322475 
-
+CMPT 361 Assignment 3 - Jacqueline Greer
 Code adapted from:
 	Mozilla webGl tutorial:
 		these pages have the source code I used: 
