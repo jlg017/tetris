@@ -19,7 +19,7 @@ Project Scope:
 		- “up” key rotates a tile counterclockwise about its pivot, 90° at a time
 		- “left” and “right” key presses result in lateral movements of a tile, one grid at a time
 		- “down” key accelerates the downward movement
-		At no time should a tile piece to collide with any existing Tetris pieces or the border of the game window
+		At no time should a tile piece collide with any existing Tetris pieces or the border of the game window
 	4) Additional game logic
 		- When the bottom row is completely filled, it is removed and the tile stack above it will be moved one row down
 		- Game terminates when a new tile piece cannot be fit within the game window
