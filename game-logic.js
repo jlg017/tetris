@@ -1,15 +1,13 @@
+//--------------------randomize functions for new object shape and position--------------------
 
-
-//--------------------randomizer functions for shape and position--------------------
 function getRandomInt(max) {
 	return Math.floor(Math.random() * Math.floor(max));
 }
 function getRandomRange(min, max) {
   return Math.random() * (max - min) + min;
 }
-function getRandomOrientation(shape) {
-	orientation = getRandomInt(shape.numOrientations);
-	return orientation
+function getRandomOrientation(shape) { 
+	return getRandomInt(shape.numOrientations);
 }
 function getRandomStartX(shape){
 	//random start position of shape
@@ -25,9 +23,9 @@ function getRandomStartX(shape){
 }
 
 
-//-------------------------------------------------------STEP 2: Tile Stack-up----------------------------------------------------------
+//-------------------------------------------------------Tile Stack-up----------------------------------------------------------
 
-//--------------------these 4 functions get shape length along specific axis--------------------
+//--------------------these functions get shape length along specific axis--------------------
 
 //gets lowest y value
 function getShapeLengthNegY(vertices){
@@ -52,7 +50,7 @@ function getShapeLengthPosY(vertices){
 	}
 	return currentMax;
 }
-	//gets lowest x value
+//gets lowest x value
 function getShapeLengthNegX(vertices){
 	currentMin = 0;
 	for (i = 0; i < vertices.length; i++){
@@ -81,14 +79,16 @@ function getShapeLengthPosX(vertices){
 //checks if the currently moving shape collides with stationary shapes
 function collision(shape, shapes){
 	var detectedCollisions = [];
-	var yOverlap = 0;
-	////console.log('shapes.length=' + shapes.length)
+	var yOverlap = 0; //not used
 	
 	//check most recent shapes first as they're most likely to collide
 	for(var shapeIndex = shapes.length - 1; shapeIndex >= 0; shapeIndex--){
+
+		//check if frames collide, do shapes?
 		if(isFrameCollision(shape, shapes[shapeIndex])){
+			//shape collision detection
 			var collisionResult = isShapeCollision(shape,shapes[shapeIndex]);
-			//check if shapes collided, add 
+			//if detected, add to list of detected collisions
 			if(collisionResult.length > 0){
 				detectedCollisions.push.apply(detectedCollisions, collisionResult)
 			}
@@ -105,7 +105,7 @@ function isShapeCollision(shape1, shape2){
 	var yOverlap = 0;
 	var detectedCollisions = [];
 	
-	//break up compound shapes to rectangles for comparison
+	//break up compound shapes into separate rectangles to compare all outside edges
 	if (shape1.numVertices == 8){
 		results = sectionShape(shape1);
 		s1 = results.s1;
@@ -118,8 +118,9 @@ function isShapeCollision(shape1, shape2){
 		s4 = results.s2;
 		shape2Size = 2;
 	}
-	//pass in objects holding arrays of shape vertices, X and Y, recieve whether there was a collision between the compares shapes
-	if(shape1Size == 1 && shape2Size == 1){
+	
+	//pass in objects holding arrays of shape vertices, X and Y, replies whether there was a collision between the compared shapes
+	if(shape1Size == 1 && shape2Size == 1){ //both simple shapes
 		let collisionResult = blockCollisionDetection(
 			{vertices: shape1.orientations[shape1.currentOrientation], pivotX: shape1.pivotX, pivotY: shape1.pivotY},
 			{vertices: shape2.orientations[shape2.currentOrientation], pivotX: shape2.pivotX, pivotY: shape2.pivotY}
@@ -129,7 +130,7 @@ function isShapeCollision(shape1, shape2){
 		}
 		return detectedCollisions;
 	}
-	else if (shape1Size == 1 && shape2Size == 2){
+	else if (shape1Size == 1 && shape2Size == 2){ //first shape is simple, second is complex 
 		let collisionResult = blockCollisionDetection(
 			{vertices: shape1.orientations[shape1.currentOrientation], pivotX: shape1.pivotX, pivotY: shape1.pivotY}, 
 			{vertices: s3, pivotX: shape2.pivotX, pivotY: shape2.pivotY}
@@ -147,7 +148,7 @@ function isShapeCollision(shape1, shape2){
 		}
 		return detectedCollisions;
 	}
-	else if (shape1Size == 2 && shape2Size == 1){
+	else if (shape1Size == 2 && shape2Size == 1){ //first shape is complex, second is simple 
 		let collisionResult = blockCollisionDetection(
 			{vertices: s1, pivotX: shape1.pivotX, pivotY: shape1.pivotY},
 			{vertices: shape2.orientations[shape2.currentOrientation], pivotX: shape2.pivotX, pivotY: shape2.pivotY}
@@ -165,7 +166,7 @@ function isShapeCollision(shape1, shape2){
 		}
 		return detectedCollisions;
 	}
-	else {
+	else { //both shapes are complex
 		let collisionResult = blockCollisionDetection(
 			{vertices: s1, pivotX: shape1.pivotX, pivotY: shape1.pivotY}, 
 			{vertices: s3, pivotX: shape2.pivotX, pivotY: shape2.pivotY}
@@ -203,13 +204,13 @@ function isShapeCollision(shape1, shape2){
 //checks if frames collide 
 function isFrameCollision(shape1, shape2){
 	
-	//get values for frames
+	//get values for frames (each frame is 4x4 pixels)
 	
 	//shape 1 
 	left_1 = shape1.pivotX - 2; 
-	x1_size = left_1 + 4; //each frame is 4 pixels across
+	x1_size = left_1 + 4; 
 	top_1 = shape1.pivotY - 2;
-	y1_size = top_1 + 4;
+	y1_size = top_1 + 4; 
 	bottom_1 = shape1.pivotY + 2;
 	
 	//shape 2
@@ -238,10 +239,9 @@ function isFrameCollision(shape1, shape2){
 	}
 	return collides;
 }
-//actual collision detection function for shapes 
+//checks if shapes collide
 function blockCollisionDetection(shape1, shape2){
-	//checks active vs stationary block
-	
+
 	//falling
 	//shape 1 x val	
 	left_active = shape1.pivotX + getShapeLengthNegX(shape1.vertices); //leftmost x value
@@ -249,8 +249,8 @@ function blockCollisionDetection(shape1, shape2){
 	activeX_size = Math.abs(right_active - left_active);
 	
 	//shape 1 y val	
-	top_active = shape1.pivotY + getShapeLengthPosY(shape1.vertices);
-	bottom_active = shape1.pivotY + getShapeLengthNegY(shape1.vertices);
+	top_active = shape1.pivotY + getShapeLengthPosY(shape1.vertices); //highest y value
+	bottom_active = shape1.pivotY + getShapeLengthNegY(shape1.vertices); //lowest y value
 	activeY_size = Math.abs(top_active - bottom_active);
 	
 	//stationary 
@@ -263,22 +263,20 @@ function blockCollisionDetection(shape1, shape2){
 	top_stationary = shape2.pivotY + getShapeLengthPosY(shape2.vertices);
 	bottom_stationary = shape2.pivotY + getShapeLengthNegY(shape2.vertices);
 	stationaryY_size = Math.abs(top_stationary - bottom_stationary);
-	//console.log("shape2 pivotY=" + shape2.pivotY);
-	//console.log('top_2= '+top_stationary+', bottom_2= '+bottom_stationary+', y2_size= '+stationaryY_size);
 	
 	//check collision
 	var collisionX = false;
 	var collision = false;
 	var yOverlap = 0;
 	
+	//if collision occurs in both x and y axis then there is a collision 
+	//checks for collision in x axis 
 	if((right_active > left_stationary && right_active <= right_stationary) || (right_active > right_stationary && left_active < left_stationary)){
-		//console.log("collision in x axis");
+		//checks for collision in y axis
 		if((bottom_active < top_stationary && bottom_active >= bottom_stationary) || (bottom_active < bottom_stationary && top_active > bottom_stationary)){
-			//console.log("collision in y axis");
+			//this is where the overlap occurs
 			yOverlap = top_stationary - bottom_active;
-			//console.log("yOverlap= "+ yOverlap);
 			collision = true;
-			
 		}
 	}
 	//return t/f collision, yOverlap
@@ -286,7 +284,7 @@ function blockCollisionDetection(shape1, shape2){
 }
 
 //--------------------helper functions--------------------
-//break shape into smaller rectangles
+//break shape into smaller rectangles: src of bounce(?)
 function sectionShape(shape){
 	var s1 = [];
 	var s2 = [];
@@ -314,7 +312,7 @@ function findMaxY(array){
 	return max;
 }
 
-//------------------------------------------------------Step 3: Keystroke Interactions & Tile Movements--------------------------------------------
+//----------------------------------------------------Keystroke Interactions & Tile Movements--------------------------------------------
 
 function keyEventListener(){
 	document.addEventListener('keydown', (event) => {
@@ -324,8 +322,8 @@ function keyEventListener(){
 	});		
 }
 
-const DEFAULT_SPEED = 10;
-const FAST_SPEED = 15;
+const DEFAULT_SPEED = 5;
+const FAST_SPEED = 10;
 
 function keyEvent(key){
 	if (key == 's'){
@@ -338,35 +336,35 @@ function keyEvent(key){
 		//if no collisions move down at faster rate (change speed)
 	}
 	else if (key == 'w'){
-		if (shapeToSpawn != null) {
-			if (shapeToSpawn.currentOrientation == (shapeToSpawn.numOrientations - 1)) {
-				shapeToSpawn.currentOrientation = 0;
+		if (shapeToDraw != null) {
+			if (shapeToDraw.currentOrientation == (shapeToDraw.numOrientations - 1)) {
+				shapeToDraw.currentOrientation = 0;
 			}
 			else {
-				shapeToSpawn.currentOrientation++;
+				shapeToDraw.currentOrientation++;
 			}
 		}
 	}
 	else if (key == 'a'){
 		//translate left
-		if (shapeToSpawn != null) {
-			var currentVertices = shapeToSpawn.orientations[shapeToSpawn.currentOrientation];
-			if (shapeToSpawn.pivotX + getShapeLengthNegX(currentVertices) > -5) {
-				shapeToSpawn.pivotX--;
+		if (shapeToDraw != null) {
+			var currentVertices = shapeToDraw.orientations[shapeToDraw.currentOrientation];
+			if (shapeToDraw.pivotX + getShapeLengthNegX(currentVertices) > -5) {
+				shapeToDraw.pivotX--;
 			}
 		}
 	}
 	else if (key == 'd'){
 		//translate right
-		if (shapeToSpawn != null) {
-			var currentVertices = shapeToSpawn.orientations[shapeToSpawn.currentOrientation];
-			if (shapeToSpawn.pivotX + getShapeLengthPosX(currentVertices) < 5) {
-				shapeToSpawn.pivotX++;
+		if (shapeToDraw != null) {
+			var currentVertices = shapeToDraw.orientations[shapeToDraw.currentOrientation];
+			if (shapeToDraw.pivotX + getShapeLengthPosX(currentVertices) < 5) {
+				shapeToDraw.pivotX++;
 			}
 		}
 	}
 	else if (key == 'r'){
-		currentShapes = [];
+		var shapesAlreadyPlayed = [];
 		
 	}
 	else if (key == 'q'){
@@ -374,7 +372,7 @@ function keyEvent(key){
 	}
 }
 
-//------------------------------------------------------Step 4: Additional Game Logic----------------------------------------------------------
+//----------------------------------------------------Additional Game Logic----------------------------------------------------------
 	
 //remove bottom row when filled
-	//check: for every x position at bottom of screen if there is a block against it, pivotY of all shapes in currentShapes = pivotY-1
+	//check: for every x position at bottom of screen if there is a block against it, pivotY of all shapes in var shapesAlreadyPlayed = pivotY-1
